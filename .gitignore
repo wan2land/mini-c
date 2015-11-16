@@ -1,0 +1,4 @@
+lex.yy.c
+./minic
+minic.tab.*
+minic
