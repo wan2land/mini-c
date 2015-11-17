@@ -26,7 +26,7 @@
 "%="        return (TMODASSIGN);
 [A-Za-z_][A-Za-z0-9_]*  return (TIDENT);
 [1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?    return (TNUMBER);
-"\*"([^*]|\*+[^*/])*\**"*/" ;
+"/*"([^*]|\*+[^*/])*\**"*/" ;
 "//".*                      ;
 [ \t\n]                     ;
 .           return (yytext[0]);
