@@ -1,4 +1,9 @@
 lex.yy.c
 ./minic
 minic.tab.*
+
+
+# execute files
+
 minic
+ucodei
