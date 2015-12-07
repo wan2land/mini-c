@@ -27,7 +27,9 @@
 %type <ast> function_def translation_unit external_dcl function_name function_header compound_st
     dcl_spec formal_param opt_dcl_list declaration_list declaration dcl_specifiers dcl_specifier
     type_specifier type_qualifier opt_formal_param formal_param_list param_dcl init_dcl_list init_declarator
-    declarator
+    declarator opt_number opt_stat_list statement_list statement expression_st opt_expression if_st
+    while_st return_st expression assignment_exp actual_param actual_param_list unary_exp postfix_exp primary_exp
+    logical_or_exp logical_and_exp equality_exp relational_exp additive_exp multiplicative_exp
 
 %nonassoc LOWER_THAN_TELSE
 %nonassoc TELSE
@@ -115,10 +117,11 @@ formal_param_list: param_dcl {
     }
     ;
 
-param_dcl: dcl_spec declarator // @todo
+param_dcl: dcl_spec declarator // @todo PARAM_DCL
     ;
 
 compound_st: '{' opt_dcl_list opt_stat_list '}' {
+        appendNext($2, $3);
         $$ = buildTree(COMPOUND_ST, $2, NULL);
     }
     ;
@@ -150,7 +153,7 @@ init_dcl_list: init_declarator {
         $$ = $1;
     }
     | init_dcl_list ',' init_declarator {
-        appendNext($1, $3); // 에러 났었음. appendNext 에서 존재하면 계속 이어서 붙일 수 있도록.
+        appendNext($1, $3);
         $$ = $1;
     }
     ;
@@ -160,7 +163,7 @@ init_declarator: declarator {
     }
     | declarator '=' TNUMBER {
         appendNext($1, buildNode(IDENT, $3));
-        $$ = buildTree(DCL_ITEM, $1, NULL); // @todo DCLITEM
+        $$ = buildTree(DCL_ITEM, $1, NULL);
     }
     ;
 
@@ -168,116 +171,196 @@ declarator: TIDENT {
         $$ = buildTree(SIMPLE_VAR, buildNode(IDENT, $1), NULL);
     }
     | TIDENT '[' opt_number ']' {
-        $$ = buildTree(SIMPLE_VAR, buildNode(IDENT, $1), NULL);//buildTree(SIMPLE_VAR, $1, NULL);
+        $$ = buildTree(ARRAY_VAR, buildNode(IDENT, $1), $3); // @todo 아직 예제가 없어서 볼 수 없음.
     }
     ;
 
-opt_number: TNUMBER
-    |
+opt_number: TNUMBER { $$ = buildNode(NUMBER, $1); } // @todo 아직 예시가 없음.
+    | { $$ = NULL; }
     ;
 
-opt_stat_list: statement_list
-    |
+opt_stat_list: statement_list {
+        $$ = buildTree(STAT_LIST, $1, NULL);
+    }
+    | { $$ = NULL; }
     ;
 
-statement_list: statement
-    | statement_list statement
+statement_list: statement {
+        $$ = $1;
+    }
+    | statement_list statement {
+        appendNext($1, $2);
+        $$ = $1;
+    }
     ;
 
-statement: compound_st
-    | expression_st
-    | if_st
-    | while_st
-    | return_st
+statement: compound_st { $$ = $1; }
+    | expression_st { $$ = $1; }
+    | if_st { $$ = $1; }
+    | while_st { $$ = $1; }
+    | return_st { $$ = $1; }
     ;
 
-expression_st: opt_expression ';'
+expression_st: opt_expression ';' {
+        $$ = buildTree(EXP_ST, $1, NULL);
+    }
     ;
 
-opt_expression: expression
-    |
+opt_expression: expression { $$ = $1; }
+    | { $$ = NULL }
     ;
 
-if_st: TIF '(' expression ')' statement %prec LOWER_THAN_TELSE
-    | TIF '(' expression ')' statement TELSE statement
+if_st: TIF '(' expression ')' statement %prec LOWER_THAN_TELSE {
+        $$ = buildTree(IF_ST, NULL, NULL);
+    }
+    | TIF '(' expression ')' statement TELSE statement {
+        $$ = buildTree(IF_ELSE_ST, NULL, NULL);
+    }
     ;
 
-while_st: TWHILE '(' expression ')' statement
+while_st: TWHILE '(' expression ')' statement {
+        appendNext($3, $5);
+        $$ = buildTree(WHILE_ST, $3, NULL);
+    }
     ;
 
-return_st: TRETURN opt_expression ';'
+return_st: TRETURN opt_expression ';' {
+        $$ = buildTree(RETURN_ST, NULL, NULL);
+    }
     ;
 
-expression: assignment_exp
+expression: assignment_exp { $$ = $1; }
     ;
 
-assignment_exp: logical_or_exp
-    | unary_exp '=' assignment_exp
-    | unary_exp TADDASSIGN assignment_exp
-    | unary_exp TSUBASSIGN assignment_exp
-    | unary_exp TMULASSIGN assignment_exp
-    | unary_exp TDIVASSIGN assignment_exp
-    | unary_exp TMODASSIGN assignment_exp
+assignment_exp: logical_or_exp { $$ = $1; }
+    | unary_exp '=' assignment_exp {
+        appendNext($1, $3);
+        $$ = buildTree(ASSIGN_OP, $1, NULL);
+    }
+    | unary_exp TADDASSIGN assignment_exp {
+        $$ = buildTree(ADD_ASSIGN, NULL, NULL);
+    }
+    | unary_exp TSUBASSIGN assignment_exp {
+        $$ = buildTree(SUB_ASSIGN, NULL, NULL);
+    }
+    | unary_exp TMULASSIGN assignment_exp {
+        $$ = buildTree(MUL_ASSIGN, NULL, NULL);
+    }
+    | unary_exp TDIVASSIGN assignment_exp {
+        $$ = buildTree(DIV_ASSIGN, NULL, NULL);
+    }
+    | unary_exp TMODASSIGN assignment_exp {
+        $$ = buildTree(MOD_ASSIGN, NULL, NULL);
+    }
     ;
 
-logical_or_exp: logical_and_exp
-    | logical_or_exp '||' logical_and_exp
+logical_or_exp: logical_and_exp { $$ = $1; }
+    | logical_or_exp '||' logical_and_exp {
+        appendNext($1, $3);
+        $$ = buildTree(LOGICAL_OR, $1, NULL);
+    }
     ;
 
-logical_and_exp: equality_exp
-    | logical_and_exp '&&' equality_exp
+logical_and_exp: equality_exp { $$ = $1; }
+    | logical_and_exp '&&' equality_exp {
+        appendNext($1, $3);
+        $$ = buildTree(LOGICAL_AND, $1, NULL);
+    }
     ;
 
-equality_exp: relational_exp
-    | equality_exp TEQUAL relational_exp
-    | equality_exp TNOTEQU relational_exp
+equality_exp: relational_exp { $$ = $1; }
+    | equality_exp TEQUAL relational_exp {
+        appendNext($1, $3);
+        $$ = buildTree(EQ, $1, NULL);
+    }
+    | equality_exp TNOTEQU relational_exp {
+        appendNext($1, $3);
+        $$ = buildTree(NE, $1, NULL);
+    }
     ;
 
-relational_exp: additive_exp
-    | relational_exp '>' additive_exp
-    | relational_exp '<' additive_exp
-    | relational_exp TGREATE additive_exp
-    | relational_exp TLESSE additive_exp
+relational_exp: additive_exp { $$ = $1; }
+    | relational_exp '>' additive_exp {
+        appendNext($1, $3);
+        $$ = buildTree(GT, $1, NULL);
+    }
+    | relational_exp '<' additive_exp {
+        appendNext($1, $3);
+        $$ = buildTree(LT, $1, NULL);
+    }
+    | relational_exp TGREATE additive_exp {
+        appendNext($1, $3);
+        $$ = buildTree(GE, $1, NULL);
+    }
+    | relational_exp TLESSE additive_exp {
+        appendNext($1, $3);
+        $$ = buildTree(LE, $1, NULL);
+    }
     ;
 
-additive_exp: multiplicative_exp
-    | additive_exp '+' multiplicative_exp
-    | additive_exp '-' multiplicative_exp
+additive_exp: multiplicative_exp { $$ = $1; }
+    | additive_exp '+' multiplicative_exp {
+        appendNext($1, $3);
+        $$ = buildTree(ADD, $1, NULL);
+    }
+    | additive_exp '-' multiplicative_exp {
+        appendNext($1, $3);
+        $$ = buildTree(SUB, $1, NULL);
+    }
     ;
 
-multiplicative_exp: unary_exp
-    | multiplicative_exp '*' unary_exp
-    | multiplicative_exp '/' unary_exp
-    | multiplicative_exp '%' unary_exp
+multiplicative_exp: unary_exp { $$ = $1; }
+    | multiplicative_exp '*' unary_exp {
+        appendNext($1, $3);
+        $$ = buildTree(MUL, $1, NULL);
+    }
+    | multiplicative_exp '/' unary_exp {
+        appendNext($1, $3);
+        $$ = buildTree(DIV, $1, NULL);
+    }
+    | multiplicative_exp '%' unary_exp {
+        appendNext($1, $3);
+        $$ = buildTree(MOD, $1, NULL);
+    }
     ;
 
-unary_exp: postfix_exp
-    | '-' unary_exp
-    | '!' unary_exp
-    | TINC unary_exp
-    | TDEC unary_exp
+unary_exp: postfix_exp { $$ = $1; }
+    | '-' unary_exp { // UNARY_MINUS
+        $$ = buildTree(UNARY_MINUS, $2, NULL);
+    }
+    | '!' unary_exp { // LOGICAL_NOT
+        $$ = buildTree(LOGICAL_NOT, $2, NULL);
+    }
+    | TINC unary_exp { // PRE_INC
+        $$ = buildTree(PRE_INC, $2, NULL);
+    }
+    | TDEC unary_exp { // PRE_DEC
+        $$ = buildTree(PRE_DEC, $2, NULL);
+    }
     ;
 
-postfix_exp: primary_exp
-    | postfix_exp '[' expression ']'
-    | postfix_exp '(' opt_actual_param ')'
-    | postfix_exp TINC
-    | postfix_exp TDEC
+postfix_exp: primary_exp { $$ = $1; }
+    | postfix_exp '[' expression ']' // iNDEX
+    | postfix_exp '(' opt_actual_param ')' // CALL
+    | postfix_exp TINC /// POST_INC
+    | postfix_exp TDEC // POST_DEC
     ;
 
-opt_actual_param: actual_param
-    |
+opt_actual_param: actual_param // @todo
+    | { } // 
     ;
 
-actual_param: actual_param_list
+actual_param: actual_param_list {
+        $$ = buildTree(ACTUAL_PARAM, $1, NULL);
+    }
     ;
 
 actual_param_list: assignment_exp
     | actual_param_list ',' assignment_exp
     ;
 
-primary_exp: TIDENT
-    | TNUMBER
+primary_exp: TIDENT { $$ = buildNode(IDENT, $1); }
+    | TNUMBER { $$ = buildNode(NUMBER, $1); }
     | '(' expression ')'
     ;
 
