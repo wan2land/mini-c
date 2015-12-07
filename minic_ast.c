@@ -94,7 +94,7 @@ void appendNext(Node* node, Node* next)
 		ptr = ptr->next;
 		i++;
 	}
-	printf("append next %dth ... \n", i);
+//	printf("append next %dth ... \n", i);
 	ptr->next = next;
 }
 

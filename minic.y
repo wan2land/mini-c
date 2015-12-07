@@ -29,7 +29,7 @@
     type_specifier type_qualifier opt_formal_param formal_param_list param_dcl init_dcl_list init_declarator
     declarator opt_number opt_stat_list statement_list statement expression_st opt_expression if_st
     while_st return_st expression assignment_exp actual_param actual_param_list unary_exp postfix_exp primary_exp
-    logical_or_exp logical_and_exp equality_exp relational_exp additive_exp multiplicative_exp
+    logical_or_exp logical_and_exp equality_exp relational_exp additive_exp multiplicative_exp opt_actual_param
 
 %nonassoc LOWER_THAN_TELSE
 %nonassoc TELSE
@@ -211,7 +211,8 @@ opt_expression: expression { $$ = $1; }
     ;
 
 if_st: TIF '(' expression ')' statement %prec LOWER_THAN_TELSE {
-        $$ = buildTree(IF_ST, NULL, NULL);
+        appendNext($3, $5);
+        $$ = buildTree(IF_ST, $3, NULL);
     }
     | TIF '(' expression ')' statement TELSE statement {
         $$ = buildTree(IF_ELSE_ST, NULL, NULL);
@@ -238,19 +239,24 @@ assignment_exp: logical_or_exp { $$ = $1; }
         $$ = buildTree(ASSIGN_OP, $1, NULL);
     }
     | unary_exp TADDASSIGN assignment_exp {
-        $$ = buildTree(ADD_ASSIGN, NULL, NULL);
+        appendNext($1, $3);
+        $$ = buildTree(ADD_ASSIGN, $1, NULL);
     }
     | unary_exp TSUBASSIGN assignment_exp {
-        $$ = buildTree(SUB_ASSIGN, NULL, NULL);
+        appendNext($1, $3);
+        $$ = buildTree(SUB_ASSIGN, $1, NULL);
     }
     | unary_exp TMULASSIGN assignment_exp {
-        $$ = buildTree(MUL_ASSIGN, NULL, NULL);
+        appendNext($1, $3);
+        $$ = buildTree(MUL_ASSIGN, $1, NULL);
     }
     | unary_exp TDIVASSIGN assignment_exp {
-        $$ = buildTree(DIV_ASSIGN, NULL, NULL);
+        appendNext($1, $3);
+        $$ = buildTree(DIV_ASSIGN, $1, NULL);
     }
     | unary_exp TMODASSIGN assignment_exp {
-        $$ = buildTree(MOD_ASSIGN, NULL, NULL);
+        appendNext($1, $3);
+        $$ = buildTree(MOD_ASSIGN, $1, NULL);
     }
     ;
 
@@ -325,29 +331,39 @@ multiplicative_exp: unary_exp { $$ = $1; }
     ;
 
 unary_exp: postfix_exp { $$ = $1; }
-    | '-' unary_exp { // UNARY_MINUS
+    | '-' unary_exp {
         $$ = buildTree(UNARY_MINUS, $2, NULL);
     }
-    | '!' unary_exp { // LOGICAL_NOT
+    | '!' unary_exp {
         $$ = buildTree(LOGICAL_NOT, $2, NULL);
     }
-    | TINC unary_exp { // PRE_INC
+    | TINC unary_exp {
         $$ = buildTree(PRE_INC, $2, NULL);
     }
-    | TDEC unary_exp { // PRE_DEC
+    | TDEC unary_exp {
         $$ = buildTree(PRE_DEC, $2, NULL);
     }
     ;
 
 postfix_exp: primary_exp { $$ = $1; }
-    | postfix_exp '[' expression ']' // iNDEX
-    | postfix_exp '(' opt_actual_param ')' // CALL
-    | postfix_exp TINC /// POST_INC
-    | postfix_exp TDEC // POST_DEC
+    | postfix_exp '[' expression ']' { // todo
+        appendNext($1, $3);
+        $$ = buildTree(INDEX, $1, NULL);
+    }
+    | postfix_exp '(' opt_actual_param ')' {
+        appendNext($1, $3);
+        $$ = buildTree(CALL, $1, NULL);
+    }
+    | postfix_exp TINC { // todo
+        $$ = buildTree(POST_INC, $1, NULL);
+    }
+    | postfix_exp TDEC { // todo
+        $$ = buildTree(POST_DEC, $1, NULL);
+    }
     ;
 
-opt_actual_param: actual_param // @todo
-    | { } // 
+opt_actual_param: actual_param { $$ = $1; }
+    | { $$ = NULL; }
     ;
 
 actual_param: actual_param_list {
@@ -355,13 +371,22 @@ actual_param: actual_param_list {
     }
     ;
 
-actual_param_list: assignment_exp
-    | actual_param_list ',' assignment_exp
+actual_param_list: assignment_exp {
+        $$ = $1;
+    }
+    | actual_param_list ',' assignment_exp {
+        appendNext($1, $3);
+        $$ = $1;
+    }
     ;
 
-primary_exp: TIDENT { $$ = buildNode(IDENT, $1); }
-    | TNUMBER { $$ = buildNode(NUMBER, $1); }
-    | '(' expression ')'
+primary_exp: TIDENT {
+        $$ = buildNode(IDENT, $1);
+    }
+    | TNUMBER {
+        $$ = buildNode(NUMBER, $1);
+    }
+    | '(' expression ')' // todo
     ;
 
 %%
