@@ -82,11 +82,17 @@ dcl_specifier: type_qualifier { $$ = $1; }
     | type_specifier { $$ = $1; }
     ;
 
-type_qualifier: TCONST { $$ = buildTree(CONST_NODE, NULL, NULL); }
+type_qualifier: TCONST {
+        $$ = buildTree(CONST_NODE, NULL, NULL);
+    }
     ;
 
-type_specifier: TINT { $$ = buildTree(INT_NODE, NULL, NULL); }
-    | TVOID { $$ = buildTree(VOID_NODE, NULL, NULL); }
+type_specifier: TINT {
+        $$ = buildTree(INT_NODE, NULL, NULL);
+    }
+    | TVOID {
+        $$ = buildTree(VOID_NODE, NULL, NULL);
+    }
     ;
 
 function_name: TIDENT { $$ = buildNode(IDENT, $1); }
@@ -102,7 +108,7 @@ opt_formal_param: formal_param_list { $$ = $1; }
     ;
 
 formal_param_list: param_dcl {
-        $$ = buildNode(IDENT, "Hello"); // @todo 여기는 function (int x, int y) 이런 예시가 없어서 확인 불가능. 만들어야 함.
+        $$ = $1;
     }
     | formal_param_list ',' param_dcl {
         appendNext($1, $3);
@@ -110,7 +116,10 @@ formal_param_list: param_dcl {
     }
     ;
 
-param_dcl: dcl_spec declarator // @todo PARAM_DCL
+param_dcl: dcl_spec declarator {
+        appendNext($1, $2);
+        $$ = buildTree(PARAM_DCL, $1, NULL);
+    }
     ;
 
 compound_st: '{' opt_dcl_list opt_stat_list '}' {
@@ -155,7 +164,7 @@ init_declarator: declarator {
         $$ = buildTree(DCL_ITEM, $1, NULL);
     }
     | declarator '=' TNUMBER {
-        appendNext($1, buildNode(IDENT, $3));
+        appendNext($1, buildNode(IDENT, $3)); // @todo 이거 구조 맞나?
         $$ = buildTree(DCL_ITEM, $1, NULL);
     }
     ;
@@ -164,12 +173,18 @@ declarator: TIDENT {
         $$ = buildTree(SIMPLE_VAR, buildNode(IDENT, $1), NULL);
     }
     | TIDENT '[' opt_number ']' {
-        $$ = buildTree(ARRAY_VAR, buildNode(IDENT, $1), $3); // @todo 아직 예제가 없어서 볼 수 없음.
+        Node* ptr = buildNode(IDENT, $1);
+        appendNext(ptr, $3);
+        $$ = buildTree(ARRAY_VAR, ptr, NULL);
     }
     ;
 
-opt_number: TNUMBER { $$ = buildNode(NUMBER, $1); } // @todo 아직 예시가 없음.
-    | { $$ = NULL; }
+opt_number: TNUMBER {
+        $$ = buildNode(NUMBER, $1);
+    }
+    | {
+        $$ = NULL;
+    }
     ;
 
 opt_stat_list: statement_list {
@@ -208,7 +223,9 @@ if_st: TIF '(' expression ')' statement %prec LOWER_THAN_TELSE {
         $$ = buildTree(IF_ST, $3, NULL);
     }
     | TIF '(' expression ')' statement TELSE statement {
-        $$ = buildTree(IF_ELSE_ST, NULL, NULL);
+        appendNext($3, $5);
+        appendNext($5, $7);
+        $$ = buildTree(IF_ELSE_ST, $3, NULL);
     }
     ;
 
@@ -219,7 +236,7 @@ while_st: TWHILE '(' expression ')' statement {
     ;
 
 return_st: TRETURN opt_expression ';' {
-        $$ = buildTree(RETURN_ST, NULL, NULL);
+        $$ = buildTree(RETURN_ST, $2, NULL);
     }
     ;
 
@@ -339,7 +356,7 @@ unary_exp: postfix_exp { $$ = $1; }
     ;
 
 postfix_exp: primary_exp { $$ = $1; }
-    | postfix_exp '[' expression ']' { // todo
+    | postfix_exp '[' expression ']' {
         appendNext($1, $3);
         $$ = buildTree(INDEX, $1, NULL);
     }
@@ -347,10 +364,10 @@ postfix_exp: primary_exp { $$ = $1; }
         appendNext($1, $3);
         $$ = buildTree(CALL, $1, NULL);
     }
-    | postfix_exp TINC { // todo
+    | postfix_exp TINC {
         $$ = buildTree(POST_INC, $1, NULL);
     }
-    | postfix_exp TDEC { // todo
+    | postfix_exp TDEC {
         $$ = buildTree(POST_DEC, $1, NULL);
     }
     ;
@@ -379,7 +396,9 @@ primary_exp: TIDENT {
     | TNUMBER {
         $$ = buildNode(NUMBER, $1);
     }
-    | '(' expression ')' // todo
+    | '(' expression ')' { // ex. (30 * 20) + 4
+        $$ = $2;
+    }
     ;
 
 %%
