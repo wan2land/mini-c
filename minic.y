@@ -7,13 +7,6 @@
     void yyerror(const char *s);
 
     Node* root;
-
-//    char *nodeName[];
-//    Node *valueStack[STACK_SIZE];   
-//    int rightLength[NODE_NUM + 1];  
-    int sp;
-    int blabla;
-    char filename[30];
 %}
 %union {
     struct nodeType *ast;
@@ -404,11 +397,14 @@ char* toString(char* string)
 
 int main(int argc, char *argv[]){
     FILE *sourceFile;
+    char filename[100];
+
     strcpy(filename, argv[1]);
     sourceFile = fopen(filename, "r");
 
-    if(!sourceFile)
+    if(!sourceFile) {
         fprintf(stderr, "not open!\n");
+    }
     yyin = sourceFile;
 
     do{

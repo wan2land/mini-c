@@ -2,6 +2,7 @@ CC = gcc
 PP = g++
 LEX = flex
 YACC = bison
+TESTER = sh tester.sh
 
 minic: minic.y minic.l minic_ast.c
 	$(YACC) -d minic.y
@@ -16,3 +17,6 @@ ucodei: clean_ucodei
 
 clean_ucodei:
 	@rm -f ucodei
+
+test: minic
+	$(TESTER)
