@@ -23,7 +23,7 @@ for file in tests/*.test.ast; do
     printf "Testing against %s\n" "$file_in"
 
     # Run application, redirect in file to app, and output to out file
-    "./$bin" "$file_in" > "$file_out_tst"
+    "./$bin" "$file_in"
 
     # Execute diff
     $diff "$file_out_tst" "$file_out_val"

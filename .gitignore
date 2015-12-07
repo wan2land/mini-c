@@ -12,3 +12,6 @@ ucodei
 
 tests/*.ast
 !tests/*.test.ast
+
+tests/*.uco
+!tests/*.test.uco

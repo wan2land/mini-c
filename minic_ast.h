@@ -1,5 +1,11 @@
+
+#ifndef _MINIC_AST_HEADER
+#define _MINIC_AST_HEADER
+
 #define NODE_NUM    58
 #define STACK_SIZE  512
+
+#define ID_LENGTH 16
 
 typedef struct tokenType {
     int tokenNumber;
@@ -11,7 +17,6 @@ typedef struct nodeType {
     enum {TERMINAL, NONTERM} noderep;
     struct nodeType *son;
     struct nodeType *next;
-    char *description;
 } Node;
 
 enum nodeNumber {
@@ -34,9 +39,6 @@ Node* buildTree(int tokenNumber, Node* son, Node* next);
 
 void appendNext(Node* node, Node* next);
 
-void printTree(Node *ptr, int indent);
+void printTree(Node *ptr, int indent, FILE *astFile);
 
-extern char *nodeName[];
-extern Node *valueStack[STACK_SIZE];
-extern int rightLength[NODE_NUM + 1];
-extern int sp;
+#endif

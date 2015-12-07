@@ -2,13 +2,8 @@
 #include <stdlib.h>
 #include "minic_ast.h"
 
-char *nodeName[];
-Node *valueStack[STACK_SIZE];   
-int rightLength[NODE_NUM + 1];  
-int sp;
-
-void printTree(Node *ptr, int indent);
-void printNode(Node *pt, int indent);
+void printTree(Node *ptr, int indent, FILE* astFile);
+void printNode(Node *pt, int indent, FILE* astFile);
 
 char *nodeName[] = {
 	"ACTUAL_PARAM",	"ADD",			"ADD_ASSIGN",	"ARRAY_VAR",	"ASSIGN_OP",
@@ -94,87 +89,34 @@ void appendNext(Node* node, Node* next)
 		ptr = ptr->next;
 		i++;
 	}
-//	printf("append next %dth ... \n", i);
 	ptr->next = next;
 }
 
-// Node* buildTree(int nodeNumber, Token)
-// {
-// 	int start, i, j;
-// 	Node *first, *ptr;
 
-// 	i = sp - rhsLength + 1;
-
-// 	if(!nodeNumber && i > sp)
-// 	{
-// 		ptr = NULL;
-// 	}
-// 	else
-// 	{
-// 		start = i;
-
-// 		while(i <= sp - 1)
-// 		{
-// 			j = i + 1;
-// 			while(j <= sp && valueStack[j] == NULL) j++;
-// 			if(j <= sp)
-// 			{
-// 				ptr = valueStack[i];
-// 				while(ptr->next) ptr = ptr->next;
-// 				ptr->next = valueStack[j];
-// 			}
-// 			i = j;
-// 		}
-// 		first = (start > sp) ? NULL : valueStack[start];
-
-// 		if(nodeNumber)
-// 		{
-// 			ptr = (Node*) malloc(sizeof(Node));
-// 			if(!ptr)
-// 			{
-// 				printf("ERROR : memory allocation error in buildTree()\n");
-// 				exit(1);
-// 			}
-
-// 			ptr->token.tokenNumber = nodeNumber;
-// 			ptr->token.tokenValue = NULL;
-// 			ptr->noderep = nonterm;
-// 			ptr->son = first;
-// 			ptr->next = NULL;
-// 		} else {
-// 			ptr = first;
-// 		}
-// 	}
-
-// 	sp = sp - rhsLength + 1;
-// 	return ptr;
-// }
-
-
-void printNode(Node *pt, int indent)
+void printNode(Node *pt, int indent, FILE* astFile)
 {
 	int i;
 	for (i = 1; i <= indent; i++) {
-		printf("    ");
+		fprintf(astFile, "    ");
 	}
 
 	if (pt->noderep == TERMINAL)	{
-		printf("Terminal: %s\n", pt->token.tokenValue);
+		fprintf(astFile, "Terminal: %s\n", pt->token.tokenValue);
 	} else {
 		int i;
 		i = (int) (pt->token.tokenNumber);
-		printf("Nonterminal: %s\n", nodeName[i]);
+		fprintf(astFile, "Nonterminal: %s\n", nodeName[i]);
 	}
 }
 
 
-void printTree(Node *ptr, int indent)
+void printTree(Node *ptr, int indent, FILE* astFile)
 {
 	Node *p = ptr;
 	while (p != NULL) {
-		printNode(p, indent);
+		printNode(p, indent, astFile);
 		if (p->noderep == NONTERM) {
-			printTree(p->son, indent + 1);
+			printTree(p->son, indent + 1, astFile);
 		}
 		p = p->next;
 	}

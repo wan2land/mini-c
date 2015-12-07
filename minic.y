@@ -3,10 +3,16 @@
     #include <string.h>
     #include "minic_ast.h"
     #include "minic.h"
+    #include "ucode.h"
+
+    extern FILE *yyin;
+
     int yylex();
     void yyerror(const char *s);
 
     Node* root;
+
+
 %}
 %union {
     struct nodeType *ast;
@@ -403,9 +409,6 @@ primary_exp: TIDENT {
 
 %%
 
-extern FILE *yyin;
-
-
 char* toString(char* string)
 {
     char* str;
@@ -414,25 +417,59 @@ char* toString(char* string)
     return str;
 }
 
-int main(int argc, char *argv[]){
-    FILE *sourceFile;
-    char filename[100];
-
-    strcpy(filename, argv[1]);
-    sourceFile = fopen(filename, "r");
-
-    if(!sourceFile) {
-        fprintf(stderr, "not open!\n");
-    }
+Node* parse(FILE *sourceFile)
+{
     yyin = sourceFile;
-
     do{
         yyparse();
     } while(!feof(yyin));
 
-    printTree(root, 0);
+    return root;
+}
+
+int main(int argc, char *argv[]){
+    FILE *sourceFile;
+    FILE *astFile, *ucoFile;
+
+    char filename[100];
+    Node *root;
+
+    if (argc != 2) {
+        fprintf(stderr, "arguments not valid.");
+        return -1;
+    }
+
+    strcpy(filename, argv[1]);
+
+    sourceFile = fopen(filename, "r");
+    astFile = fopen(strcat(strtok(filename, "."), ".ast"), "w");
+    ucoFile = fopen(strcat(strtok(filename, "."), ".uco"), "w");
+
+    if(!sourceFile) {
+        fprintf(stderr, "source file not open!\n");
+        return -1;
+    }
+    if(!astFile) {
+        fprintf(stderr, "ast file not not open!\n");
+        return -1;
+    }
+    if(!ucoFile) {
+        fprintf(stderr, "uco file not not open!\n");
+        return -1;
+    }
+
+    printf("Start Parsing..\n");
+    root = parse(sourceFile);
+    printTree(root, 0, astFile);
+    printf("End Parsing!\n");
+
+    printf("Start Code Generate..\n");
+    codeGen(root, ucoFile);
+    printf("End Code Generate!\n");
 
     fclose(sourceFile);
+    fclose(astFile);
+    fclose(ucoFile);
     return 1;       
 }
 

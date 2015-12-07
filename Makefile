@@ -4,10 +4,10 @@ LEX = flex
 YACC = bison
 TESTER = sh tester.sh
 
-minic: minic.y minic.l minic_ast.c
+minic: minic.y minic.l minic_ast.c minic_ast.h ucode.c
 	$(YACC) -d minic.y
 	$(LEX) minic.l
-	$(CC) -o minic lex.yy.c minic.tab.c minic_ast.c -ly -ll
+	$(CC) -o minic lex.yy.c minic.tab.c ucode.c minic_ast.c -ly -ll
 
 clean:
 	@rm -rf *.tab.? lex.* minic
