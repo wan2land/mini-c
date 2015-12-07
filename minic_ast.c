@@ -89,13 +89,13 @@ Node* buildTree(int tokenNumber, Node* son, Node* next)
 void appendNext(Node* node, Node* next)
 {
 	Node *ptr = node;
-	int i = 0;
-	while (ptr != NULL) { // 계속 뒤쪽으로 연결해서 붙도록...
+	int i = 1;
+	while (ptr->next != NULL) { // 계속 뒤쪽으로 연결해서 붙도록...
 		ptr = ptr->next;
 		i++;
 	}
 	printf("append next %dth ... \n", i);
-	node->next = next;
+	ptr->next = next;
 }
 
 // Node* buildTree(int nodeNumber, Token)

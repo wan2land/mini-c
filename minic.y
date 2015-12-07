@@ -22,12 +22,16 @@
 }
 %token TCONST TELSE TIF TINT TRETURN TVOID TWHILE TEQUAL TNOTEQU
     TLESSE TGREATE TAND TOR TINC TDEC TADDASSIGN TSUBASSIGN TMULASSIGN
-    TDIVASSIGN TMODASSIGN TNUMBER
+    TDIVASSIGN TMODASSIGN
+%token <string> TIDENT TNUMBER
 %type <ast> function_def translation_unit external_dcl function_name function_header compound_st
     dcl_spec formal_param opt_dcl_list declaration_list declaration dcl_specifiers dcl_specifier
     type_specifier type_qualifier opt_formal_param formal_param_list param_dcl init_dcl_list init_declarator
     declarator
-%token <string> TIDENT
+
+%nonassoc LOWER_THAN_TELSE
+%nonassoc TELSE
+
 %%
 
 mini_c: translation_unit {
@@ -48,8 +52,7 @@ external_dcl: function_def {
         $$ = $1;
     }
     | declaration {
-        // @todo
-        // $$ = $1;
+        $$ = $1;
     }
     ;
 
@@ -147,7 +150,7 @@ init_dcl_list: init_declarator {
         $$ = $1;
     }
     | init_dcl_list ',' init_declarator {
-        appendNext($1, $3); // 왜 애러나지?
+        appendNext($1, $3); // 에러 났었음. appendNext 에서 존재하면 계속 이어서 붙일 수 있도록.
         $$ = $1;
     }
     ;
@@ -156,15 +159,16 @@ init_declarator: declarator {
         $$ = buildTree(DCL_ITEM, $1, NULL);
     }
     | declarator '=' TNUMBER {
-        $$ = buildTree(DCL_ITEM, NULL, NULL); // @todo DCLITEM
+        appendNext($1, buildNode(IDENT, $3));
+        $$ = buildTree(DCL_ITEM, $1, NULL); // @todo DCLITEM
     }
     ;
 
 declarator: TIDENT {
-        $$ = buildTree(SIMPLE_VAR, buildNode(TIDENT, $1), NULL);
+        $$ = buildTree(SIMPLE_VAR, buildNode(IDENT, $1), NULL);
     }
     | TIDENT '[' opt_number ']' {
-        $$ = buildTree(SIMPLE_VAR, buildNode(TIDENT, $1), NULL);//buildTree(SIMPLE_VAR, $1, NULL);
+        $$ = buildTree(SIMPLE_VAR, buildNode(IDENT, $1), NULL);//buildTree(SIMPLE_VAR, $1, NULL);
     }
     ;
 
@@ -194,7 +198,7 @@ opt_expression: expression
     |
     ;
 
-if_st: TIF '(' expression ')' statement
+if_st: TIF '(' expression ')' statement %prec LOWER_THAN_TELSE
     | TIF '(' expression ')' statement TELSE statement
     ;
 

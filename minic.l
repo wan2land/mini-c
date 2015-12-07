@@ -30,7 +30,7 @@
 	return (TIDENT);
 }
 [1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?    {
-	//	yylval.
+	yylval.string = toString(yytext);
 	return (TNUMBER);
 }
 "/*"([^*]|\*+[^*/])*\**"*/" ;
