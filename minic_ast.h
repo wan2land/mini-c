@@ -2,15 +2,16 @@
 #define STACK_SIZE  512
 
 typedef struct tokenType {
-    int tokenNumber;    
-    char *tokenValue;   
+    int tokenNumber;
+    char *tokenValue;
 } Token;
 
 typedef struct nodeType {
-    Token token;                        
-    enum {terminal, nonterm} noderep;   
-    struct nodeType *son;               
-    struct nodeType *brother;           
+    Token token;
+    enum {TERMINAL, NONTERM} noderep;
+    struct nodeType *son;
+    struct nodeType *next;
+    char *description;
 } Node;
 
 enum nodeNumber {
@@ -27,4 +28,15 @@ enum nodeNumber {
     VOID_NODE,      WHILE_ST,           
 };
 
+Node* buildNode(int tokenNumber, char* tokenValue);
+
+Node* buildTree(int tokenNumber, Node* son, Node* next);
+
+void appendNext(Node* node, Node* next);
+
+void printTree(Node *ptr, int indent);
+
 extern char *nodeName[];
+extern Node *valueStack[STACK_SIZE];
+extern int rightLength[NODE_NUM + 1];
+extern int sp;

@@ -1,5 +1,6 @@
 %{
     #include "minic.tab.h"
+    #include "minic.h"
 %}
 
 %%
@@ -24,8 +25,14 @@
 "*="        return (TMULASSIGN);
 "/="        return (TDIVASSIGN);
 "%="        return (TMODASSIGN);
-[A-Za-z_][A-Za-z0-9_]*  return (TIDENT);
-[1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?    return (TNUMBER);
+[A-Za-z_][A-Za-z0-9_]*  {
+	yylval.string = toString(yytext);
+	return (TIDENT);
+}
+[1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?    {
+	//	yylval.
+	return (TNUMBER);
+}
 "/*"([^*]|\*+[^*/])*\**"*/" ;
 "//".*                      ;
 [ \t\n]                     ;

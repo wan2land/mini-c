@@ -1,7 +1,14 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "minic_ast.h"
 
-extern char *nodeName[];
+char *nodeName[];
+Node *valueStack[STACK_SIZE];   
+int rightLength[NODE_NUM + 1];  
+int sp;
+
+void printTree(Node *ptr, int indent);
+void printNode(Node *pt, int indent);
 
 char *nodeName[] = {
 	"ACTUAL_PARAM",	"ADD",			"ADD_ASSIGN",	"ARRAY_VAR",	"ASSIGN_OP",
@@ -40,123 +47,135 @@ int ruleName[] = {
 		0, 0, 0
 };
 
-Node *valueStack[STACK_SIZE];	
-int rightLength[NODE_NUM + 1];	
-int sp;							
-int i;
-
-void buildNode(int tokenNumber, char *tokenValue)
+Node* buildNode(int tokenNumber, char* tokenValue)
 {
 	Node *ptr;
-	Token token;
-
-	token.tokenNumber = tokenNumber;
-	token.tokenValue = tokenValue;
-
-	if(++sp > STACK_SIZE) {
-		printf("ERROR : parsing stack overflow\n");
-		exit(1);
-	}
 
 	ptr = (Node *) malloc(sizeof(Node));
-	if(!ptr)
-	{
+
+	if (!ptr) {
 		printf("ERROR : memory allocation error in buildNode()\n");
 		exit(1);
 	}
 
-	ptr->token = token;
-	ptr->noderep = terminal;
-	ptr->son = ptr->brother = NULL;
-
-	valueStack[sp] = ptr;
+	ptr->token.tokenNumber = tokenNumber;
+	ptr->token.tokenValue = tokenValue;
+	ptr->noderep = TERMINAL;
+	ptr->son = ptr->next = NULL;
+	return ptr;
 }
 
 
-void buildTree(int nodeNumber, int rhsLength)
+Node* buildTree(int tokenNumber, Node* son, Node* next)
 {
-	int start, i, j;
-	Node *first, *ptr;
+	Node *ptr;
 
-	i = sp - rhsLength + 1;
-
-	if(!nodeNumber && i > sp)
+	ptr = (Node*) malloc(sizeof(Node));
+	if(!ptr)
 	{
-		ptr = NULL;
-	}
-	else
-	{
-		start = i;
-
-		while(i <= sp - 1)
-		{
-			j = i + 1;
-			while(j <= sp && valueStack[j] == NULL) j++;
-			if(j <= sp)
-			{
-				ptr = valueStack[i];
-				while(ptr->brother) ptr = ptr->brother;
-				ptr->brother = valueStack[j];
-			}
-			i = j;
-		}
-		first = (start > sp) ? NULL : valueStack[start];
-
-		if(nodeNumber)
-		{
-			ptr = (Node*) malloc(sizeof(Node));
-			if(!ptr)
-			{
-				printf("ERROR : memory allocation error in buildTree()\n");
-				exit(1);
-			}
-
-			ptr->token.tokenNumber = nodeNumber;
-			ptr->token.tokenValue = NULL;
-			ptr->noderep = nonterm;
-			ptr->son = first;
-			ptr->brother = NULL;
-		}
-		else
-			ptr = first;
+		printf("ERROR : memory allocation error in buildTree()\n");
+		exit(1);
 	}
 
-	sp = sp - rhsLength + 1;
-	valueStack[sp] = ptr;
-	rightLength[nodeNumber] = 0;
+	ptr->token.tokenNumber = tokenNumber;
+	ptr->token.tokenValue = NULL;
+	ptr->noderep = NONTERM;
+	ptr->son = son;
+	ptr->next = next;
+
+	return ptr;
 }
+
+void appendNext(Node* node, Node* next)
+{
+	Node *ptr = node;
+	int i = 0;
+	while (ptr != NULL) { // 계속 뒤쪽으로 연결해서 붙도록...
+		ptr = ptr->next;
+		i++;
+	}
+	printf("append next %dth ... \n", i);
+	node->next = next;
+}
+
+// Node* buildTree(int nodeNumber, Token)
+// {
+// 	int start, i, j;
+// 	Node *first, *ptr;
+
+// 	i = sp - rhsLength + 1;
+
+// 	if(!nodeNumber && i > sp)
+// 	{
+// 		ptr = NULL;
+// 	}
+// 	else
+// 	{
+// 		start = i;
+
+// 		while(i <= sp - 1)
+// 		{
+// 			j = i + 1;
+// 			while(j <= sp && valueStack[j] == NULL) j++;
+// 			if(j <= sp)
+// 			{
+// 				ptr = valueStack[i];
+// 				while(ptr->next) ptr = ptr->next;
+// 				ptr->next = valueStack[j];
+// 			}
+// 			i = j;
+// 		}
+// 		first = (start > sp) ? NULL : valueStack[start];
+
+// 		if(nodeNumber)
+// 		{
+// 			ptr = (Node*) malloc(sizeof(Node));
+// 			if(!ptr)
+// 			{
+// 				printf("ERROR : memory allocation error in buildTree()\n");
+// 				exit(1);
+// 			}
+
+// 			ptr->token.tokenNumber = nodeNumber;
+// 			ptr->token.tokenValue = NULL;
+// 			ptr->noderep = nonterm;
+// 			ptr->son = first;
+// 			ptr->next = NULL;
+// 		} else {
+// 			ptr = first;
+// 		}
+// 	}
+
+// 	sp = sp - rhsLength + 1;
+// 	return ptr;
+// }
 
 
 void printNode(Node *pt, int indent)
 {
 	int i;
-
-	for(i = 1; i <= indent; i++)
-		printf(" ");
-
-	if(pt->noderep == terminal)		
-	{
-		printf(" Terminal: %s", pt->token.tokenValue);
+	for (i = 1; i <= indent; i++) {
+		printf("    ");
 	}
-	else							
-	{
+
+	if (pt->noderep == TERMINAL)	{
+		printf("Terminal: %s\n", pt->token.tokenValue);
+	} else {
 		int i;
 		i = (int) (pt->token.tokenNumber);
-		printf(" Nonterminal: %s", nodeName[i]);
+		printf("Nonterminal: %s\n", nodeName[i]);
 	}
-	printf("\n");
 }
 
 
-void printTree(Node *pt, int indent)
+void printTree(Node *ptr, int indent)
 {
-	Node *p = pt;
-	while(p != NULL)
-	{
+	Node *p = ptr;
+	while (p != NULL) {
 		printNode(p, indent);
-		if(p->noderep == nonterm)
-			printTree(p->son, indent + 4);
-		
-		p = p->brother;
+		if (p->noderep == NONTERM) {
+			printTree(p->son, indent + 1);
+		}
+		p = p->next;
 	}
 }
