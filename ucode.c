@@ -279,27 +279,29 @@ void processSimpleVariable(Node *ptr, TypeSpecifier typeSpecifier, TypeQuailfier
 
 void processArrayVariable(Node *ptr, int typeSpecifier, int typeQualifier)
 {
-	printf("!!!!!\n");
-	printf("!!!!!\n");
-	printf("!!!!!\n");
-    // Node *p = ptr->son;            // variable name(identifier)
-    // int stIndex, size, base;
+	Node *p = ptr->son;			
+	int stIndex, size, base;
 
-    // if (ptr->token.tokenNumber != ARRAY_VAR) {
-    //     printf("error in ARRAY_VAR\n");
-    //     return;
-    // }
+	if(ptr->token.tokenNumber != ARRAY_VAR)
+	{
+		fprintf(file, "error in ARRAY_VAR\n");
+		return;
+	}
 
-    // if (p->next == NULL) { // no size
-    //     printf("array size must be specified\n");
-    // } else {
-    //     size = p->next->token.value.num;
-    // }
+	if(p->next == NULL)	
+	{
+		fprintf(file, "array size must be specified\n");
+	}
+	else
+	{
+		size = atoi(p->next->token.tokenValue);
+	}
 
-    // size *= typeSize(typeSpecifier);
+	size *= typeSize(typeSpecifier);
 
-    // stIndex = insert(p->token.value.id, typeSpecifier, typeQualifier, base, offset, size, 0);
-    // offset += size;
+	stIndex = insert(p->token.tokenValue, typeSpecifier, typeQualifier,
+						base, offsetStack[stackTop], size, 0);
+	offsetStack[stackTop] += size;
 }
 
 void processDeclaration(Node *ptr)
@@ -675,7 +677,7 @@ void processOperator(Node *ptr)
 			noArguments = rtSymbol.width;
 			
 			emit0("ldp");
-			p = p->next;		
+			p = p->next->son; 
 			while(p)			
 			{
 				if(p->noderep == NONTERM)
@@ -721,7 +723,7 @@ int checkPredefined(Node *ptr)
 		noArguments = 1;
 
 		emit0("ldp");
-		p = p->next;
+		p = p->next->son; 
 		while(p)
 		{
 			if(p->noderep == NONTERM)
@@ -762,11 +764,9 @@ int checkPredefined(Node *ptr)
 		while(p)
 		{
 			if(p->noderep == NONTERM) {
-				printf("call only11\n");
 				processOperator(p);
 			}
 			else {
-				printf("call only22\n");
 				stIndex = lookup(p->token.tokenValue, 1);
 				if(stIndex == -1) return 0;
 				emit2("lod", rtSymbol.base, rtSymbol.offset);

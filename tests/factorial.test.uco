@@ -1,0 +1,38 @@
+main 	 proc 	 2 	 2 	 2
+ 	 sym 	 2 	 1 	 1 	
+ 	 sym 	 2 	 2 	 1 	
+ 	 ldp 
+ 	 lda 	 2 	 1
+ 	 call 	 read
+ 	 ldp 
+ 	 lod 	 2 	 1
+ 	 call 	 write
+ 	 ldp 
+ 	 lod 	 2 	 1
+ 	 call 	 factorial
+ 	 str 	 2 	 2
+ 	 ldp 
+ 	 lod 	 2 	 2
+ 	 call 	 write
+ 	 ret 
+ 	 end 
+factorial 	 proc 	 0 	 3 	 2
+ 	 ldc 	 1
+ 	 eq 
+ 	 fjp 	 $$0
+ 	 ldc 	 1
+ 	 retv 
+ 	 ujp 	 $$1
+$$0 	 nop
+ 	 ldp 
+ 	 ldc 	 1
+ 	 sub 
+ 	 call 	 factorial
+ 	 mult 
+ 	 retv 
+$$1 	 nop
+ 	 end 
+ 	 bgn 	 0
+ 	 ldp 
+ 	 call 	 main
+ 	 end 

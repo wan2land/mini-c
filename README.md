@@ -25,3 +25,12 @@ Mini C
 ```
 
 아마 이렇게 나와있을 거임.
+
+
+ARRAY
+
+```
+    Nonterminal: ARRAY_VAR
+        Terminal: list
+        Terminal: 100
+```
