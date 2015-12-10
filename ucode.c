@@ -57,44 +57,38 @@ void icg_error(int i)
 
 void emit0(char *opcode)
 {
-    fprintf(file, " \t %s \n", opcode);
+    fprintf(file, "           %s\n", opcode);
 }
 
 void emit1(char *opcode, int operand)
 {
-    fprintf(file, " \t %s \t %d\n", opcode, operand);
+    fprintf(file, "           %-7s %d\n", opcode, operand);
 }
 
 void emit2(char *opcode, int operand1, int operand2)
 {
-    fprintf(file, " \t %s \t %d \t %d\n", opcode, operand1, operand2);
+    fprintf(file, "           %-7s %-7d %d\n", opcode, operand1, operand2);
 }
 
 void emitJump(char *opcode, char *operand)
 {
-    fprintf(file, " \t %s \t %s\n", opcode, operand);
+    fprintf(file, "           %-7s %s\n", opcode, operand);
 }
 
 void emitSym(char *opcode, int operand1, int operand2, int operand3)
 {
-    fprintf(file, " \t %s \t %d \t %d \t %d \t\n", opcode, operand1, operand2, operand3);
+    fprintf(file, "           %-7s %-7d %-7d %d\n", opcode, operand1, operand2, operand3);
 }
 
 void emitProc(char *label, int proc1, int proc2, int proc3)
 {
-    fprintf(file, "%s \t proc \t %d \t %d \t %d\n", label, proc1, proc2, proc3);
+    fprintf(file, "%-10s %-7s %-7d %-7d %d\n", label, "proc", proc1, proc2, proc3);
 }
 
 void emitLabel(char *label)
 {
-    fprintf(file, "%s \t nop\n", label);
+    fprintf(file, "%-10s nop\n", label);
 }
-
-void emitComment(char *label)
-{
-	fprintf(file, "/*%s */\n", label);
-}
-
 
 int typeSize(TypeSpecifier type)
 {
@@ -392,6 +386,7 @@ void processFuncHeader(Node *ptr)
         p = p->next;
     }
 
+printf("noArguments %d\n", noArguments);
     // step 3: insert the function name
     // stIndex = insert(ptr->son->next->token.tokenValue, returnType, FUNC_TYPE, 1, 0, noArguments, 0);
 	stIndex = insertFuncName(ptr->son->next->token.tokenValue, returnType, noArguments);
@@ -662,6 +657,7 @@ void processOperator(Node *ptr)
 
 			if(checkPredefined(p))
 			{
+				printf("break!!\n");
 				break;
 			}
 
@@ -671,6 +667,7 @@ void processOperator(Node *ptr)
 			
 			if(stIndex == -1)			
 			{
+				printf("why? undefined...\n");
 				fprintf(file, "%s: undefined function\n", functionName);
 				break; 
 			}
@@ -717,9 +714,10 @@ int checkPredefined(Node *ptr)
 	int stIndex;
 
 	functionName = p->token.tokenValue;
-
+printf("check prefdeifned, %s\n", functionName);
 	if(strcmp(functionName, "read") == 0)
 	{
+		printf("read!\n");
 		noArguments = 1;
 
 		emit0("ldp");
@@ -757,6 +755,7 @@ int checkPredefined(Node *ptr)
 	}
 	else if(strcmp(functionName, "write") == 0)
 	{
+		printf("write!\n");
 		noArguments = 1;
 
 		emit0("ldp");

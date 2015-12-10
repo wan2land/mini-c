@@ -706,7 +706,5 @@ int main(int argc, char *argv[])
    inputFile.close();
    outputFile.close();
 
-   int t;
-   cin >> t; 
    return 0;
 }
