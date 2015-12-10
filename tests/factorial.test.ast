@@ -48,8 +48,9 @@ Nonterminal: PROGRAM
                 Nonterminal: PARAM_DCL
                     Nonterminal: DCL_SPEC
                         Nonterminal: INT_NODE
-                    Nonterminal: SIMPLE_VAR
-                        Terminal: n
+                    Nonterminal: DCL_ITEM
+                        Nonterminal: SIMPLE_VAR
+                            Terminal: n
         Nonterminal: COMPOUND_ST
             Nonterminal: DCL_LIST
             Nonterminal: STAT_LIST

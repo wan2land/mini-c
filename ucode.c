@@ -386,7 +386,7 @@ void processFuncHeader(Node *ptr)
         p = p->next;
     }
 
-printf("noArguments %d\n", noArguments);
+
     // step 3: insert the function name
     // stIndex = insert(ptr->son->next->token.tokenValue, returnType, FUNC_TYPE, 1, 0, noArguments, 0);
 	stIndex = insertFuncName(ptr->son->next->token.tokenValue, returnType, noArguments);
@@ -714,7 +714,6 @@ int checkPredefined(Node *ptr)
 	int stIndex;
 
 	functionName = p->token.tokenValue;
-printf("check prefdeifned, %s\n", functionName);
 	if(strcmp(functionName, "read") == 0)
 	{
 		printf("read!\n");
@@ -908,6 +907,7 @@ void processFunction(Node *ptr)
 	int stIndex, i;
 	char *functionName;
 	Node *p;
+	int width = 0;
 
 	functionName = ptr->son->son->next->token.tokenValue;
 	flag_returned = 0;
@@ -916,6 +916,18 @@ void processFunction(Node *ptr)
 	stackTop++;
 	tblStack[stackTop] = tblStack[stackTop-1]->st[stIndex].link;
 	offsetStack[stackTop] = 1;
+
+	// dd(ptr->son->son->next->next->son);
+	// parameters
+	if (ptr->son->son->next->next->son) {
+		for (p = ptr->son->son->next->next->son; p; p = p->next) {
+			if(p->token.tokenNumber == PARAM_DCL) {
+				processDeclaration(p->son);
+			} else {
+				icg_error(9);
+			}
+		}
+	}
 	for(p = ptr->son->next->son->son; p; p = p->next)
 	{
 		if(p->token.tokenNumber == DCL) {
@@ -929,6 +941,7 @@ void processFunction(Node *ptr)
 
 	emitProc(functionName, offsetStack[stackTop]-1, tblStack[stackTop]->base, 2);
 
+	// 지역변수
 	for(i = 0; i < tblStack[stackTop]->num; i++)
 	{
 		emitSym("sym", tblStack[stackTop]->base, 
@@ -943,8 +956,7 @@ void processFunction(Node *ptr)
 		}
 	}
 
-	if(!flag_returned)
-	{
+	if(!flag_returned) {
 		emit0("ret");
 	}
 	emit0("end");

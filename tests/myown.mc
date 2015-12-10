@@ -4,13 +4,15 @@
 
 void main()
 {
-    int i = 0, j = 10, k = 10;
+	int a, b;
 
-    if (i == 0) j += 1;
-    k -= 1;
+	read(a);
+	read(b);
 
-    if (i == 0) {
-        j += 1;
-        k -= 1;
-    }
+	write(add(a, b));
+}
+
+int add(int a, int b)
+{
+	return a + b + 1;
 }

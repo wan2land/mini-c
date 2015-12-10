@@ -1,34 +1,29 @@
-main       proc    3       2       2
+main       proc    2       2       2
            sym     2       1       1
            sym     2       2       1
-           sym     2       3       1
+           ldp
+           lda     2       1
+           call    read
+           ldp
+           lda     2       2
+           call    read
+           ldp
+           ldp
            lod     2       1
-           ldc     0
-           eq
-           fjp     $$0
            lod     2       2
-           ldc     1
-           add
-           str     2       2
-$$0        nop
-           lod     2       3
-           ldc     1
-           sub
-           str     2       3
-           lod     2       1
-           ldc     0
-           eq
-           fjp     $$1
-           lod     2       2
-           ldc     1
-           add
-           str     2       2
-           lod     2       3
-           ldc     1
-           sub
-           str     2       3
-$$1        nop
+           call    add
+           call    write
            ret
+           end
+add        proc    2       3       2
+           sym     3       1       1
+           sym     3       2       1
+           lod     3       1
+           lod     3       2
+           add
+           ldc     1
+           add
+           retv
            end
            bgn     0
            ldp

@@ -167,21 +167,22 @@ init_dcl_list: init_declarator {
     ;
 
 init_declarator: declarator {
-        $$ = buildTree(DCL_ITEM, $1, NULL);
+        $$ = $1;
     }
     | declarator '=' TNUMBER {
-        appendNext($1, buildNode(IDENT, $3)); // @todo 이거 구조 맞나?
-        $$ = buildTree(DCL_ITEM, $1, NULL);
+        appendNext($1->son, buildNode(IDENT, $3)); // @todo 이거 구조 맞나?
+        $$ = $1;
     }
     ;
 
 declarator: TIDENT {
-        $$ = buildTree(SIMPLE_VAR, buildNode(IDENT, $1), NULL);
+        Node* ptr = buildTree(SIMPLE_VAR, buildNode(IDENT, $1), NULL);
+        $$ = buildTree(DCL_ITEM, ptr, NULL);
     }
     | TIDENT '[' opt_number ']' {
         Node* ptr = buildNode(IDENT, $1);
         appendNext(ptr, $3);
-        $$ = buildTree(ARRAY_VAR, ptr, NULL);
+        $$ = buildTree(DCL_ITEM, buildTree(ARRAY_VAR, ptr, NULL), NULL);
     }
     ;
 

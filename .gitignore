@@ -2,6 +2,9 @@ lex.yy.c
 ./minic
 minic.tab.*
 
+# auto created
+
+out.lst
 
 # execute files
 

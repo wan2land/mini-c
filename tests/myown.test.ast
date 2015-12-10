@@ -12,41 +12,54 @@ Nonterminal: PROGRAM
                         Nonterminal: INT_NODE
                     Nonterminal: DCL_ITEM
                         Nonterminal: SIMPLE_VAR
-                            Terminal: i
-                        Terminal: 0
+                            Terminal: a
                     Nonterminal: DCL_ITEM
                         Nonterminal: SIMPLE_VAR
-                            Terminal: j
-                        Terminal: 10
-                    Nonterminal: DCL_ITEM
-                        Nonterminal: SIMPLE_VAR
-                            Terminal: k
-                        Terminal: 10
+                            Terminal: b
             Nonterminal: STAT_LIST
-                Nonterminal: IF_ST
-                    Nonterminal: EQ
-                        Terminal: i
-                        Terminal: 0
-                    Nonterminal: EXP_ST
-                        Nonterminal: ADD_ASSIGN
-                            Terminal: j
-                            Terminal: 1
                 Nonterminal: EXP_ST
-                    Nonterminal: SUB_ASSIGN
-                        Terminal: k
+                    Nonterminal: CALL
+                        Terminal: read
+                        Nonterminal: ACTUAL_PARAM
+                            Terminal: a
+                Nonterminal: EXP_ST
+                    Nonterminal: CALL
+                        Terminal: read
+                        Nonterminal: ACTUAL_PARAM
+                            Terminal: b
+                Nonterminal: EXP_ST
+                    Nonterminal: CALL
+                        Terminal: write
+                        Nonterminal: ACTUAL_PARAM
+                            Nonterminal: CALL
+                                Terminal: add
+                                Nonterminal: ACTUAL_PARAM
+                                    Terminal: a
+                                    Terminal: b
+    Nonterminal: FUNC_DEF
+        Nonterminal: FUNC_HEAD
+            Nonterminal: DCL_SPEC
+                Nonterminal: INT_NODE
+            Terminal: add
+            Nonterminal: FORMAL_PARA
+                Nonterminal: PARAM_DCL
+                    Nonterminal: DCL_SPEC
+                        Nonterminal: INT_NODE
+                    Nonterminal: DCL_ITEM
+                        Nonterminal: SIMPLE_VAR
+                            Terminal: a
+                Nonterminal: PARAM_DCL
+                    Nonterminal: DCL_SPEC
+                        Nonterminal: INT_NODE
+                    Nonterminal: DCL_ITEM
+                        Nonterminal: SIMPLE_VAR
+                            Terminal: b
+        Nonterminal: COMPOUND_ST
+            Nonterminal: DCL_LIST
+            Nonterminal: STAT_LIST
+                Nonterminal: RETURN_ST
+                    Nonterminal: ADD
+                        Nonterminal: ADD
+                            Terminal: a
+                            Terminal: b
                         Terminal: 1
-                Nonterminal: IF_ST
-                    Nonterminal: EQ
-                        Terminal: i
-                        Terminal: 0
-                    Nonterminal: COMPOUND_ST
-                        Nonterminal: DCL_LIST
-                        Nonterminal: STAT_LIST
-                            Nonterminal: EXP_ST
-                                Nonterminal: ADD_ASSIGN
-                                    Terminal: j
-                                    Terminal: 1
-                            Nonterminal: EXP_ST
-                                Nonterminal: SUB_ASSIGN
-                                    Terminal: k
-                                    Terminal: 1
