@@ -1,41 +1,31 @@
 Mini C
 ===
 
-## Trouble Shooting
+건국대학교 2015년도, 2학기 컴파일러 수업에서 진행된 내용입니다.
 
-만약 `bison`에서 `minic.y: conflicts: 1 shift/reduce` 에러가 발생한다면?
+## Copyright
 
- - `bison -d minic.y -v` 를 입력하면 output이 출력 됨. 거기서 원인을 찾자.
+다음 책을 기반으로 작성된 내용입니다.
 
-## 변경된 부분 AST
+> 오세만. "컴파일러 입문". 정익사 2010.
 
-```
-    Nonterminal: CALL
-        Terminal: write
-        Nonterminal: ACTUAL_PARAM
-            Terminal: i
-```
+## Installation
 
-이거 교과서에는 
-
-```
-    Nonterminal: CALL
-        Terminal: write
-        Terminal: i
+```bash
+make
 ```
 
-아마 이렇게 나와있을 거임.
+## How to run
 
-
-ARRAY
-
-```
-    Nonterminal: ARRAY_VAR
-        Terminal: list
-        Terminal: 100
+```bash
+./minic tests/factorial.mc
+./ucodei tests/factorial.uco
 ```
 
+## Run test cases
+
+`make test`
 
 ## Todo
 
-- bubble.mc not working..
+ - assignment like `x = y = 10;`.
