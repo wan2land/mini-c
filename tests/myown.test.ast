@@ -1,4 +1,11 @@
 Nonterminal: PROGRAM
+    Nonterminal: DCL
+        Nonterminal: DCL_SPEC
+            Nonterminal: INT_NODE
+        Nonterminal: DCL_ITEM
+            Nonterminal: SIMPLE_VAR
+                Terminal: global
+            Terminal: 3
     Nonterminal: FUNC_DEF
         Nonterminal: FUNC_HEAD
             Nonterminal: DCL_SPEC

@@ -30,12 +30,12 @@ enum nodeNumber {
     MUL_ASSIGN,     NE,             NUMBER,         PARAM_DCL,      POST_DEC,
     POST_INC,       PRE_DEC,        PRE_INC,        PROGRAM,        RETURN_ST,
     SIMPLE_VAR,     STAT_LIST,      SUB,            SUB_ASSIGN,     UNARY_MINUS,
-    VOID_NODE,      WHILE_ST,           
+    VOID_NODE,      WHILE_ST,
 };
 
 Node* buildNode(int tokenNumber, char* tokenValue);
 
-Node* buildTree(int tokenNumber, Node* son, Node* next);
+Node* buildTree(int tokenNumber, Node* son);
 
 void appendNext(Node* node, Node* next);
 

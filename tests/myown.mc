@@ -2,6 +2,8 @@
 얼마나 이상없이 되는지..
 */
 
+int global = 3;
+
 void main()
 {
 	int a, b;
