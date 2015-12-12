@@ -13,7 +13,8 @@ void main()
         read(element);
     }
 
-    top = total = i - 1;
+    total = i - 1;
+    top = total;
     while (top > 1) { // sorting the list
         i = 1;
         while (i < top) {
@@ -33,3 +34,4 @@ void main()
         ++i;
     }
 }
+

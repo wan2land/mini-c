@@ -71,12 +71,14 @@ Nonterminal: PROGRAM
                                         Terminal: element
                 Nonterminal: EXP_ST
                     Nonterminal: ASSIGN_OP
+                        Terminal: total
+                        Nonterminal: SUB
+                            Terminal: i
+                            Terminal: 1
+                Nonterminal: EXP_ST
+                    Nonterminal: ASSIGN_OP
                         Terminal: top
-                        Nonterminal: ASSIGN_OP
-                            Terminal: total
-                            Nonterminal: SUB
-                                Terminal: i
-                                Terminal: 1
+                        Terminal: total
                 Nonterminal: WHILE_ST
                     Nonterminal: GT
                         Terminal: top

@@ -32,6 +32,7 @@ $$1        nop
            ldc     1
            sub
            str     2       102
+           lod     2       102
            str     2       104
 $$2        nop
            lod     2       104
