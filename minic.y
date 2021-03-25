@@ -222,7 +222,7 @@ expression_st: opt_expression ';' {
     ;
 
 opt_expression: expression { $$ = $1; }
-    | { $$ = NULL }
+    | { $$ = NULL; }
     ;
 
 if_st: TIF '(' expression ')' statement %prec LOWER_THAN_TELSE {
@@ -278,14 +278,14 @@ assignment_exp: logical_or_exp { $$ = $1; }
     ;
 
 logical_or_exp: logical_and_exp { $$ = $1; }
-    | logical_or_exp '||' logical_and_exp {
+    | logical_or_exp TOR logical_and_exp {
         appendNext($1, $3);
         $$ = buildTree(LOGICAL_OR, $1);
     }
     ;
 
 logical_and_exp: equality_exp { $$ = $1; }
-    | logical_and_exp '&&' equality_exp {
+    | logical_and_exp TAND equality_exp {
         appendNext($1, $3);
         $$ = buildTree(LOGICAL_AND, $1);
     }
@@ -473,4 +473,3 @@ int main(int argc, char *argv[]){
     fclose(ucoFile);
     return 1;
 }
-
